@@ -1,0 +1,128 @@
+Sub market_analysis()
+Dim Worksheet_Count As Integer
+Worksheet_Count = ActiveWorkbook.Worksheets.Count
+
+'Loop/iterate through all worksheets
+    For worksheet = 1 To Worksheet_Count
+    Worksheets(worksheet).Select
+
+'Column headers/labels
+        Range("I1").Value = "Ticker"
+        Range("J1").Value = "Yearly Change"
+        Range("K1").Value = "Percent Change"
+        Range("L1").Value = "Total Stock Volume"
+
+        Range("O2").Value = "Greatest % Increase"
+        Range("O3").Value = "Greatest % Decrease"
+        Range("O4").Value = "Greatest Total Volume"
+        Range("P1").Value = "Ticker"
+        Range("Q1").Value = "Value"
+
+
+'find last row in dataset
+        Dim LastRow As Long
+        LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+        'MsgBox(LastRow)
+
+'variable creation
+        Dim Ticker As String
+        Dim OpenPrice As Double
+        Dim ClosePrice As Double
+        Dim YearlyChange As Double
+        Dim PercentChange As Double
+        Dim TotalStockVol As Double
+
+        TotalStockVol = 0
+
+        Dim SummaryTableRow As Long
+        SummaryTableRow = 2
+
+        Dim GreatestIncr As Double
+        GreatestIncr = 0
+    
+        Dim GreatestDecr As Double
+        GreatestDecr = 0
+
+        Dim GreatestTotalVol As Double
+        GreatestTotalVol = 0
+
+            For i = 2 To LastRow
+                OpenPrice = Cells(i, 3).Value
+                
+                If Cells(i + 1, 1) <> Cells(i, 1) Then
+                    
+                    'set ticker name
+                    Ticker = Cells(i, 1).Value
+                        'MsgBox (Ticker)
+               
+                    ClosePrice = Cells(i, 6).Value
+                    YearlyChange = ClosePrice - OpenPrice
+                    
+
+        'Print the Ticker name in the Summary Table
+                Range("I" & SummaryTableRow).Value = Ticker
+        'Print the Ticker Total Amount to the Summary Table
+                Range("L" & SummaryTableRow).Value = TotalStockVol
+                
+                SummaryTableRow = SummaryTableRow + 1
+                
+                'Reset Ticker Total Stock Volume
+                TotalStockVol = 0
+                
+        'Print Ticker Close
+                Range("P" & SummaryTableRow).Value = ClosePrice
+        'Print Yearly Change
+                Range("J" & SummaryTableRow).Value = YearlyChange
+                
+                'Calculate and Print Percent Change
+                    If OpenPrice = 0 Then
+                        Range("K" & SummaryTableRow).Value = 0
+                    Else
+                        Range("K" & SummaryTableRow).Value = (ClosePrice - OpenPrice) / OpenPrice
+                    End If
+                    
+               Else
+                TotalStockVol = TotalStockVol + Cells(i, 7).Value
+            
+               End If
+               
+            Next i
+               
+        'Loop to change formatting
+            For j = 2 To SummaryTableRow - 1
+                If Cells(j, 10).Value < 0 Then
+                    Cells(j, 10).Interior.ColorIndex = 3
+                Else
+                    Cells(j, 10).Interior.ColorIndex = 4
+                End If
+                    Cells(j, 11).NumberFormat = "0.00%"
+                    
+                Next j
+                
+        'Loop to obtain bonus
+            
+            For k = 2 To LastRow
+                If Range("K" & k).Value > Range("Q2").Value Then
+                    Range("Q2").Value = Range("K" & k).Value
+                    Range("P2").Value = Range("I" & k).Value
+                End If
+                
+                If Range("K" & k).Value < Range("Q3").Value Then
+                    Range("Q3").Value = Range("K" & k).Value
+                    Range("P3").Value = Range("I" & k).Value
+                End If
+                
+                If Range("L" & k).Value > Range("Q4").Value Then
+                    Range("Q4").Value = Range("L" & k).Value
+                    Range("P4").Value = Range("I" & k).Value
+                End If
+                
+            Next k
+                    
+             Range("Q2").NumberFormat = "0.00%"
+             Range("Q3").NumberFormat = "0.00%"
+             
+             
+      Next worksheet
+                
+    End Sub
